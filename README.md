@@ -3,11 +3,11 @@ Ce projet a été realisé sans l'aide d'openGL ou de Vulkan, afin d'apprendre p
 
 Voici quelques exemples de rendu :
 
-- ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/example_1.png)
+- ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/exemple_1.png)
 
-- ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/example_2.png)
+- ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/exemple_2.png)
 
-- ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/example_3.png)
+- ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/exemple_3.png)
 
 Prinicpaux liens utilié pour ce projet:
   - https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
