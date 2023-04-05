@@ -3,15 +3,14 @@ from vector3 import *
 from mesh import *
 from PIL import Image
 import os
-meshes  = [Sphere(Vector3(0,0,10),1,(0,255,0),0),Sphere(Vector3(2,5,10),1,(200,25,0),0)]
-imageWidth = 720
-imageHeight = 420
+imageWidth = 420
+imageHeight = 244
 finalImage = Image.new(mode='RGB',size=(imageWidth,imageHeight),color=(0,0,0))
-#meshes=[Mesh(Vector3(0,0,25),Vector3(),Vector3(1,1,1),[Vector3(5,5,0),Vector3(5,0,0),Vector3(0,5,0)],[Triangle(0,1,2,Vector3(220, 220, 220),0)])]
-meshes =[Sphere(Vector3(-1.9, -2.8, 18.5),2.2,Vector3(100, 100, 100),0.9),Sphere(Vector3(2, -3, 14),2,Vector3(220, 220, 220),0.9),Mesh(Vector3(0, 0, 15),Vector3(0,10,20),Vector3(1,1,1),[Vector3(-5, -5, 8),Vector3(-5, 5, 8),Vector3(5, -5, 8),Vector3(5, 5, 8),Vector3(-5, -5, -5),Vector3(-5, 5, -5),Vector3(5, 5, -5),Vector3(5, -5, -5)],[Triangle(0,1,2,Vector3(220, 220, 220),0.95),Triangle(1,2,3,Vector3(220, 220, 220),0.95),Triangle(0,2,7,Vector3(255, 186, 121),0),Triangle(0,4,7,Vector3(255, 186, 121),0),Triangle(0,4,5,Vector3(242, 94, 106),0),Triangle(0,1,5,Vector3(242, 94, 106),0),Triangle(3,7,2,Vector3(87, 94, 242),0),Triangle(7,3,6,Vector3(87, 94, 242),0),Triangle(1,3,5,Vector3(220, 220, 220),0),Triangle(3,6,5,Vector3(220, 220, 220),0)])]
-
+scene =[Sphere(Vector3(-1.9, -2.8, 18.5),2.2,Vector3(100, 100, 100),0.9),Sphere(Vector3(2, -3, 14),2,Vector3(220, 220, 220),0.9),Mesh(Vector3(0, 0, 15),Vector3(0,0,0),Vector3(1,1,1),[Vector3(-5, -5, 8),Vector3(-5, 5, 8),Vector3(5, -5, 8),Vector3(5, 5, 8),Vector3(-5, -5, -5),Vector3(-5, 5, -5),Vector3(5, 5, -5),Vector3(5, -5, -5)],
+[Triangle(0,1,2,Vector3(220, 220, 220),0.95,Vector3(0,0,-1)),Triangle(1,2,3,Vector3(220, 220, 220),0.95,Vector3(0,0,1)),Triangle(0,2,7,Vector3(255, 186, 121),0,Vector3(0,1,0)),Triangle(0,4,7,Vector3(255, 186, 121),0,Vector3(0,-1,0)),
+Triangle(0,4,5,Vector3(242, 94, 106),0,Vector3(1,0,0)),Triangle(0,1,5,Vector3(242, 94, 106),0,Vector3(-1,0,0)),Triangle(3,7,2,Vector3(87, 94, 242),0,Vector3(-1,0,0)),Triangle(7,3,6,Vector3(87, 94, 242),0,Vector3(-1,0,0)),
+Triangle(1,3,5,Vector3(220, 220, 220),0,Vector3(0,1,0)),Triangle(3,6,5,Vector3(220, 220, 220),0,Vector3(0,1,0))])]
 def intersectWithSphere(rayOrigin,rayDirection,sphere,maxDistance):
-    #return False
     origin = rayOrigin-sphere.center
     b = 2*origin.dotProduct(rayDirection,False)
     c = origin.dotProduct(origin,False)-(sphere.radius**2)
@@ -26,12 +25,12 @@ def intersectWithSphere(rayOrigin,rayDirection,sphere,maxDistance):
     return (distance,normal,hitPoint)
 def intersectWithFace(rayOrigin,rayDirection,face,maxDistance):
     # calculate the normal of the plane
-   
     v1= face.v2-face.v1
     if face.normal is None:
         v2=face.v3-face.v1
         normal = v1.cross(v2).normalize()
     else: normal = face.normal
+    #if (rayDirection).dotProduct(normal,False)>=0: return False
     Not = normal.dotProduct(rayDirection,False)
     if fabs(Not)<0.001:
         # the Ray is parallel to the plane so it would never intersect
@@ -48,35 +47,37 @@ def intersectWithFace(rayOrigin,rayDirection,face,maxDistance):
 mainLight = Light(Vector3(0,2,18),Vector3(1,1,1))
 m=0
 def isLightVisible(pos,dir,length):
-    return True
     length=sqrt(length)
-    for i in meshes:
-        if type(i)==type(Sphere):
+    for i in scene:
+        if type(i)==type(Sphere(0,0,0,0)):
             _intersectResult = intersectWithSphere(pos,dir,i,length)
             if _intersectResult!=False:
                 return False
         else:
             for j in i.triangles:
-                _intersectResult = intersectWithFace(pos,dir,Triangle(i.vertices[j.v1].rotate(i.rotation)+i.position,i.vertices[j.v2].rotate(i.rotation)+i.position,i.vertices[j.v3].rotate(i.rotation)+i.position,None,None),length)
+                _intersectResult =intersectWithFace(pos,dir,Triangle((i.vertices[j.v1].rotate(i.rotation)+i.position)*i.scale,(i.vertices[j.v2].rotate(i.rotation)+i.position)*i.scale,(i.vertices[j.v3].rotate(i.rotation)+i.position)*i.scale,None,None,j.normal),length)
                 if _intersectResult!=False:
                     return False
     return True
+
 def calculateLight(hitInfo,_light,face,rDir,rPos,l):
     _color=face.color
+
     if face.reflectionStrenght!=0 and l!=0:
         r= ray(hitInfo[2],(rDir-(hitInfo[1]*((rDir.dotProduct(hitInfo[1],False))*2))).normalize(),l-1,1000,True)
         _color=(r*face.reflectionStrenght)+_color*(1-face.reflectionStrenght)
-    if isLightVisible(hitInfo[2],(hitInfo[2]-_light.position).normalize(),((hitInfo[2]-_light.position)*(hitInfo[2]-_light.position))._sum()): a=1
+    if isLightVisible(hitInfo[2],(_light.position-hitInfo[2]).normalize(),((_light.position-hitInfo[2])*(_light.position-hitInfo[2]))._sum()): a=1
     else: a=0.7
 
     if type(face)==type(Sphere):
-        return _color*(hitInfo[2]-_light.position).normalize().dotProduct(hitInfo[1],True)*a
+        if (_light.position-hitInfo[2]).dotProduct(hitInfo[1],False)<0: a = 0.7
+        return _color*(hitInfo[2]-_light.position).normalize().dotProduct(hitInfo[1],True)
     return _color*(hitInfo[2]-_light.position).normalize().dotProduct(hitInfo[1],True)*a
-def ray(rayOrigin,rayDirection,reflectionLeft=5,length=0,doLightCal=True):
+def ray(rayOrigin,rayDirection,reflectionLeft=5,length=100,doLightCal=True):
     global meshes
     length= 1000
-    _obj=Sphere(Vector3(0,0,0),Vector3(0,0,0),Vector3(0,0,0),Vector3(0,0,0))
-    for i in meshes:
+    _obj=Sphere(Vector3(0,0,0),Vector3(0,0,0),None,Vector3(0,0,0))
+    for i in scene:
         if type(i)==type(Sphere(0,0,0,0)):
             _intersectResult = intersectWithSphere(rayOrigin,rayDirection,i,length)
             if _intersectResult!=False:
@@ -87,33 +88,39 @@ def ray(rayOrigin,rayDirection,reflectionLeft=5,length=0,doLightCal=True):
             for j in i.triangles:
                 #if j.normal is not None and (i.vertices[j.v1].rotate(i.rotation)+i.position-rayOrigin).dotProduct((i.vertices[j.v3]+j.normal).rotate(i.rotation)-i.vertices[j.v3].rotate(i.rotation),False)<0:
                 #_intersectResult = intersectWithFace(rayOrigin,rayDirection,Triangle(i.vertices[j.v1].rotate(i.rotation)+i.position,i.vertices[j.v2].rotate(i.rotation)+i.position,i.vertices[j.v3].rotate(i.rotation)+i.position,None,(i.vertices[j.v3]+j.normal).rotate(i.rotation)-i.vertices[j.v3].rotate(i.rotation)),length)
-                _intersectResult = intersectWithFace(rayOrigin,rayDirection,Triangle(i.vertices[j.v1].rotate(i.rotation)+i.position,i.vertices[j.v2].rotate(i.rotation)+i.position,i.vertices[j.v3].rotate(i.rotation)+i.position,None,None,None),length)
-                #print(_intersectResult)
+                _intersectResult = intersectWithFace(rayOrigin,rayDirection,Triangle((i.vertices[j.v1].rotate(i.rotation)+i.position)*i.scale,(i.vertices[j.v2].rotate(i.rotation)+i.position)*i.scale,(i.vertices[j.v3].rotate(i.rotation)+i.position)*i.scale,None,None,j.normal),length)
                 if _intersectResult!=False:
                     length =_intersectResult[0]
                     intersectResult = _intersectResult
                     _obj=j
-    #if _obj.color.color()!=(0,0,0):
-    try:
+    if doLightCal and _obj.color is not None:
         return calculateLight(intersectResult,mainLight,_obj,rayDirection,rayOrigin,reflectionLeft)
-    except:
-        return Vector3(0,0,0)
+    if rayDirection.y<-0.1: return Vector3(100,100,100)
+    if rayDirection.y<0.1: return Vector3(125+250*rayDirection.y,125+250*rayDirection.y,175+750*rayDirection.y)
+    return Vector3(150,150,250)
+    # this will change to add a skybox.
+
 def render():
-    camera = [Vector3(),Vector3()] # [position,rotation] 
-    fov = 130
+
+    camera = (Vector3(0,0,8),Vector3(0,0,0)) # [position,rotation] 
+    fov = 90
     finish=0
     angleK = pi/fov
     xScreen=0
     yScreen=0
     _x=-fov/2
     xReset=_x
-    _y=((imageHeight*fov)/imageHeight)/2
+    _y=((imageHeight*fov*0.5)/imageHeight)/2
     xStep=fov/(imageWidth)
     yStep=fov/((imageHeight)*(imageWidth/imageHeight))
     while yScreen<(imageHeight):
         while xScreen<imageWidth:
             rayDirection=Vector3(_x*angleK,_y*angleK,1).normalize()
-            r=ray(camera[0]+Vector3(0,-1,5),rayDirection,3,1000,False)
+            
+
+
+            r=ray(camera[0],rayDirection.rotate(camera[1]),3,100,True)
+
             finalImage.putpixel((xScreen,yScreen),r.color())
             xScreen+=1
             _x+=xStep
@@ -127,5 +134,5 @@ def render():
             print('['+'#'*finish+'·'*(100-finish)+']  '+str(finish)+"%"+" done")
 if __name__ == "__main__":
     render()
-    #finalImage.show()
+    finalImage.show()
     finalImage.save("img.png")

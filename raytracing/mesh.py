@@ -1,6 +1,6 @@
 from math import *
 from vector3 import *
-from random import *
+
 class Mesh:
     def __init__(self,position,rotation,scale,vertices,triangles):
         self.vertices,self.triangles,self.position,self.rotation,self.scale= vertices,triangles,position,rotation,scale
@@ -14,13 +14,18 @@ class Light:
     def __init__(self,position,color):
         self.position,self.color = position,color
 def loadfile(path):
+    ''' 
+    path : str
+    return : Mesh
+    read and convert an obj file into a Mesh.
+    '''
+    if path.split('.')[0].lower() in ['obj'] ==False: raise ValueError('unsupported file type')
     file=open(path,'rb')
     lines=file.readlines()
     vertices=[]
     normals=[]
     faces=[]
-    indice=0
-    color=Vector3(randint(0,255),randint(0,255),randint(0,255))
+    color=Vector3(100,100,100)
     for line in lines:
         try:
             l=line.decode()
@@ -39,7 +44,5 @@ def loadfile(path):
                         faces.append(Triangle(int(v[1][0])-1,int(v[2][0])-1,int(v[3][0])-1,color,0,(normals[int(v[1][2])]+normals[int(v[2][2])]+normals[int(v[3][2])])*(1/3)))
                         if v[4][2][:-2]=='\n': v[4][2]=v[4][2][-2:]
                         faces.append(Triangle(int(v[4][0])-1,int(v[1][0])-1,int(v[3][0])-1,color,0,(normals[int(v[4][2])]+normals[int(v[1][2])]+normals[int(v[3][2])])*(1/3)))
-            indice+=1
         except: continue
-    return Mesh(Vector3(2,2,10),Vector3(-20,15,25),Vector3(1,1,1),vertices,faces)
-    #return Mesh(Vector3(randint(-30,10),randint(-30,30),10+randint(0,10)),Vector3(randint(-360,360),randint(-360,360),randint(-360,360)),Vector3(1,1,1),vertices,faces)
+    return Mesh(Vector3(0,0,0),Vector3(0,0,0),Vector3(1,1,1),vertices,faces)
