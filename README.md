@@ -10,7 +10,7 @@ Without any help from openGL or Vulkan, I developed this project to achieve a be
 
 Voici quelques exemples de rendu :
 
-- ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/example_1.png)
+- ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/exemple_1.png)
 
 - ![alt text](https://github.com/GB-86/Raytracing/blob/main/raytracing/exemples_de_rendu/exemple_2.png)
 
