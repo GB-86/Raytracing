@@ -1,24 +1,24 @@
 from math import *
 class Vector3:
     def _abs(self):
-        # return absolute absolute value of X Y  and Z 
+        # return absolute value of X Y  and Z 
         return Vector3(fabs(self.x),fabs(self.y),fabs(self.z))
     def __init__(self,x=0.0,y=0.0,z=0.0):
         self.x,self.y,self.z =x,y,z
     def __str__(self):
         return "[ "+str(self.x)+" , "+str(self.y)+" , "+str(self.z)+" ]"
     def __add__(self,u):
-        # u must be a Vector3, interger or a float/int
+        # u must be a Vector3, int or a float
         if type(u)==type(self):
             return Vector3(self.x+u.x,self.y+u.y,self.z+u.z)
         return Vector3(self.x+u,self.y+u,self.z+u)
     def __sub__(self,u):
-        # u must be a Vector3, interger or a float/int
+        # u must be a Vector3, int or a float
         if type(u)==type(self):
             return Vector3(self.x-u.x,self.y-u.y,self.z-u.z)
         return Vector3(self.x-u,self.y-u,self.z-u)
     def __mul__(self,u):
-        # u must be a Vector3, interger or a float/int
+        # u must be a Vector3, int or a float
         if type(u)==type(self):
             return Vector3(self.x*u.x,self.y*u.y,self.z*u.z)
         return Vector3(self.x*u,self.y*u,self.z*u)
@@ -48,7 +48,7 @@ class Vector3:
         # doSqrt=True -> use square root 
         # else return square distance
         if doSqrt:
-            return sqrt(sum((self-u)*(self-u)))
+            return sqrt(_sum((self-u)*(self-u)))
         return ((self-u)*(self-u))._sum()
     def color(self):
         # convert Vecotr3 to a tuple (r,g,b) where r g b are x, y and z
