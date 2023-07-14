@@ -1,0 +1,42 @@
+public bool GetIntersection(Vector rayOrigin, Vector rayDirection, ref 
+              float hitDistance, out Vector uv)
+    {
+        uv = null;
+
+        // begin calculating determinant - also used to calculate U parameter
+        Vector pvec = rayDirection.Cross(edge2);
+
+        // if determinant is near zero, ray lies in plane of triangle
+        float det = edge1.Dot(pvec);
+
+        const float EPSILON = 0.000001f;
+        if ((det > -EPSILON) && (det < EPSILON))
+            return false;
+
+        float inv_det = 1.0f / det;
+
+        // calculate distance from vertex 0 to ray origin
+        Vector tvec = rayOrigin - verts[0];
+
+        // calculate U parameter and test bounds
+        float u = tvec.Dot(pvec) * inv_det;
+        if ((u < 0.0f) || (u > 1.0f))
+            return false;
+
+        // prepare to test V parameter
+        Vector qvec = tvec.Cross(edge1);
+
+        // calculate V parameter and test bounds
+        float v = rayDirection.Dot(qvec) * inv_det;
+        if ((v < 0.0f) || (u + v > 1.0f))
+            return false;
+
+        Vector uvHit = uvVectors[0] * u + uvVectors[1] * v + uvVectors[2] * (1 - u - v);
+        uv = new Vector(uvHit[0], uvHit[1], 0);
+
+        // calculate t, ray intersects triangle
+        hitDistance = edge2.Dot(qvec) * inv_det;
+
+        // only allow intersections in the forward ray direction
+        return hitDistance >= 0.0f;
+    }
